@@ -1,0 +1,96 @@
+﻿@page "/items"
+@using DevExpress.Blazor
+@inject IHttpClientFactory ClientFactory
+
+<di class="container">
+    <div class="row">
+        <div class="col-5"></div>
+        <div class="col-2">
+            <h3>Items</h3>
+        </div>
+        <div class="col-5"></div>
+    </div>
+    <div class="row">
+        <DxGrid Data="@DataSource"
+            KeyFieldName="id"
+            PageSize="12"
+            ValidationEnabled="true"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            PopupEditFormCssClass="pw-800"
+            EditMode="GridEditMode.PopupEditForm">
+            <Columns>
+                <DxGridCommandColumn Width="120px" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="id" Visible = "false" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="name" Caption="Name"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="description" Caption="Description"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="price" Caption="Price"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="quantity" Caption="Quantity"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="category" Caption="Category"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="image" Caption="Image">
+                </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code"/>
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var item = (Item)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.name.ToString()" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.description.ToString()" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Price:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.price.ToString()" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.category.ToString()" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+        </DxGrid>
+    </div>
+</di>
+
+@code {
+    List<Item> DataSource { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get,
+            "https://localhost:7134/api/items/get-all");
+        request.Headers.Add("Accept", "*/*");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+        var responseString = await response.Content.ReadAsStringAsync();
+        var res = JsonSerializer.Deserialize<Response<List<Item>>>(responseString);
+        if (response.IsSuccessStatusCode)
+        {
+            DataSource = res.data;
+        }
+        else
+        {
+            //Show Error
+        }
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
+        return;
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e) {
+        return;
+    }
+
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e) {
+        return;
+    }
+
+    async Task UpdateDataAsync() {
+        return;
+    }
+}

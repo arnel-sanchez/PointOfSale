@@ -1,14 +1,15 @@
 ﻿using PointOfSale.Models.DataBaseModels;
+using PointOfSale.Models.ModifiersModels;
 
 namespace PointOfSale.DataAccess
 {
     public interface IModifiersDataAccess
     {
-        public void AddModifiers(string name, string description, decimal price, bool add);
+        public void AddModifiers(string name, string description, double price, bool add);
 
         public void DeleteModifiers(string id);
 
-        public void UpdateModifiers(string id, string name, string description, decimal price, bool add);
+        public void UpdateModifiers(string id, string name, string description, double price, bool add);
 
         public List<Modifier> GetModifiers();
 
@@ -24,7 +25,7 @@ namespace PointOfSale.DataAccess
             this.dbContext = dbContext;
         }
 
-        public void AddModifiers(string name, string description, decimal price, bool add)
+        public void AddModifiers(string name, string description, double price, bool add)
         {
             var modifier = new Modifier
             {
@@ -52,7 +53,7 @@ namespace PointOfSale.DataAccess
             dbContext.SaveChanges();
         }
 
-        public void UpdateModifiers(string id, string name, string description, decimal price, bool add)
+        public void UpdateModifiers(string id, string name, string description, double price, bool add)
         {
             var modifier = dbContext.Modifiers.Where(x => x.Id == id).FirstOrDefault();
 

@@ -11,10 +11,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -96,6 +93,7 @@ builder.Services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
 builder.Services.AddSingleton<IFileHandler, FileHandler>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient<IModifiersDataAccess, ModifiersDataAccess>();
+builder.Services.AddTransient<IUserDataAccess, UsersDataAccess>();
 builder.Services.AddTransient<IItemsDataAccess, ItemsDataAccess>();
 builder.Services.AddTransient<ISalesDataAccess, SalesDataAccess>();
 builder.Services.AddHostedService<JwtRefreshTokenCache>();
@@ -105,10 +103,19 @@ builder.Services.AddCors(options =>
         builder => { builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 });
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await SeedData.CreateRoles(roleManager);
+    await SeedData.CreateAdminAccount(userManager, roleManager);
+    await SeedData.CreateAdministrativeAccount(userManager, roleManager);
+    await SeedData.CreateSellerAccount(userManager, roleManager);
+    SeedData.CreateItems(scope.ServiceProvider.GetRequiredService<IItemsDataAccess>());
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -121,10 +128,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-//SeedData.CreateAdminAccount(app.Services, builder.Configuration).Wait();
-//SeedData.CreateSellerAccount(app.Services, builder.Configuration).Wait();
-//SeedData.CreateAdministrativeAccount(app.Services, builder.Configuration).Wait();
-//SeedData.CreateRoles(app.Services, builder.Configuration).Wait();
 
 app.Run();

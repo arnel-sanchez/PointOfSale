@@ -17,24 +17,28 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using PointOfSale.DataAccess;
+using PointOfSale.Models;
 
 namespace PointOfSale.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly ILogger<AuthController> _logger;
+        private readonly IUserDataAccess _userDataAccess;
         private readonly IJwtAuthManager _jwtAuthManager;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
-        public AuthController(ILogger<AuthController> logger, IJwtAuthManager jwtAuthManager, UserManager<User> userManager, SignInManager<User> signInManager)
+        public AuthController(ILogger<AuthController> logger, IJwtAuthManager jwtAuthManager, UserManager<User> userManager, SignInManager<User> signInManager, IUserDataAccess userDataAccess)
         {
             _logger = logger;
             _jwtAuthManager = jwtAuthManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _userDataAccess = userDataAccess;
         }
 
         [AllowAnonymous]
@@ -372,6 +376,20 @@ namespace PointOfSale.Controllers
             catch (SecurityTokenException e)
             {
                 return Unauthorized(e.Message); // return 401 so that the client side can redirect the user to login page
+            }
+        }
+
+        [HttpGet("get-sellers")]
+        public IActionResult GetSellers()
+        {
+            try
+            {
+                var users = _userDataAccess.GetSellers();
+                return Ok(new Response<List<UserDTO>> { Code = 200, Data = users, Message = "Users Getted Success" });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
             }
         }
     }

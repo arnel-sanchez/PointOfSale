@@ -18,7 +18,7 @@ namespace PointOfSale.Models.DataBaseModels
         public string LastName { get; set; }
 
         [Required]
-        [DataType(DataType.Text), StringLength(10)]
+        [DataType(DataType.Text), StringLength(30)]
         public string Role { get; set; }
     }
 }

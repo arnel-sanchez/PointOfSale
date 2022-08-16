@@ -11,12 +11,13 @@ namespace PointOfSale.Models.DataBaseModels
 
         public User Seller { get; set; }
 
-        public List<Item> Items { get; set; }
+        public List<ModifiersByItem> Items { get; set; }
 
         [Required]
         [Precision(2)]
-        public decimal TotalPrice { get; set; }
+        public double TotalPrice { get; set; }
 
-        public List<Modifier> Modifiers { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace PointOfSale.Models.DataBaseModels
 
         [Required]
         [Precision(2)]
-        public decimal Price { get; set; }
+        public double Price { get; set; }
 
         [Required]
         public bool Add { get; set; }

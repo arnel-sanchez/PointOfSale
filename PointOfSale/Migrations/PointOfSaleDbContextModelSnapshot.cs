@@ -184,19 +184,14 @@ namespace PointOfSale.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<double>("Price")
                         .HasPrecision(2)
-                        .HasColumnType("decimal(2,2)");
+                        .HasColumnType("float(2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("SaleId")
-                        .HasColumnType("nvarchar(36)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("SaleId");
 
                     b.ToTable("Items");
                 });
@@ -218,14 +213,36 @@ namespace PointOfSale.Migrations
                     b.Property<string>("ItemId")
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("ModifiersByItemId")
+                        .HasColumnType("nvarchar(36)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<double>("Price")
                         .HasPrecision(2)
-                        .HasColumnType("decimal(2,2)");
+                        .HasColumnType("float(2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("ModifiersByItemId");
+
+                    b.ToTable("Modifiers");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.DataBaseModels.ModifiersByItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("ItemId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("SaleId")
                         .HasColumnType("nvarchar(36)");
@@ -236,7 +253,7 @@ namespace PointOfSale.Migrations
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("Modifiers");
+                    b.ToTable("ModifiersByItem");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.DataBaseModels.Sale", b =>
@@ -245,12 +262,15 @@ namespace PointOfSale.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SellerId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<double>("TotalPrice")
                         .HasPrecision(2)
-                        .HasColumnType("decimal(2,2)");
+                        .HasColumnType("float(2)");
 
                     b.HasKey("Id");
 
@@ -313,8 +333,8 @@ namespace PointOfSale.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -390,22 +410,30 @@ namespace PointOfSale.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PointOfSale.Models.DataBaseModels.Item", b =>
-                {
-                    b.HasOne("PointOfSale.Models.DataBaseModels.Sale", null)
-                        .WithMany("Items")
-                        .HasForeignKey("SaleId");
-                });
-
             modelBuilder.Entity("PointOfSale.Models.DataBaseModels.Modifier", b =>
                 {
                     b.HasOne("PointOfSale.Models.DataBaseModels.Item", null)
                         .WithMany("Modifiers")
                         .HasForeignKey("ItemId");
 
-                    b.HasOne("PointOfSale.Models.DataBaseModels.Sale", null)
+                    b.HasOne("PointOfSale.Models.DataBaseModels.ModifiersByItem", null)
                         .WithMany("Modifiers")
+                        .HasForeignKey("ModifiersByItemId");
+                });
+
+            modelBuilder.Entity("PointOfSale.Models.DataBaseModels.ModifiersByItem", b =>
+                {
+                    b.HasOne("PointOfSale.Models.DataBaseModels.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PointOfSale.Models.DataBaseModels.Sale", null)
+                        .WithMany("Items")
                         .HasForeignKey("SaleId");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("PointOfSale.Models.DataBaseModels.Sale", b =>
@@ -422,11 +450,14 @@ namespace PointOfSale.Migrations
                     b.Navigation("Modifiers");
                 });
 
+            modelBuilder.Entity("PointOfSale.Models.DataBaseModels.ModifiersByItem", b =>
+                {
+                    b.Navigation("Modifiers");
+                });
+
             modelBuilder.Entity("PointOfSale.Models.DataBaseModels.Sale", b =>
                 {
                     b.Navigation("Items");
-
-                    b.Navigation("Modifiers");
                 });
 #pragma warning restore 612, 618
         }

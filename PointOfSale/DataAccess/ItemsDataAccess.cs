@@ -4,13 +4,13 @@ namespace PointOfSale.DataAccess
 {
     public interface IItemsDataAccess
     {
-        public void AddItem(string name, decimal price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
+        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
 
         public Item GetItems(string id);
 
         public List<Item> GetItems();
 
-        public void UpdateItem(string id, string name, decimal price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
+        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
 
         public void DeleteItem(string id);
     }
@@ -24,8 +24,9 @@ namespace PointOfSale.DataAccess
             this.dbContext = dbContext;
         }
 
-        public void AddItem(string name, decimal price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
+        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
         {
+            //agregar la ruta donde se muestra la imagen
             var item = new Item
             {
                 Id = Guid.NewGuid().ToString(),
@@ -53,8 +54,9 @@ namespace PointOfSale.DataAccess
             return dbContext.Items.ToList();
         }
 
-        public void UpdateItem(string id, string name, decimal price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
+        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
         {
+            //agregar la ruta donde se muestra la imagen
             var item = dbContext.Items.Where(x => x.Id == id).FirstOrDefault();
             if (item == null)
             {

@@ -12,8 +12,8 @@ namespace PointOfSale.Services
     public interface IFileHandler
     {
         public string UploadFile(IFormFile file);
-        public Task<MemoryStream> DownloadFile(string name);
-        public Task DeleteFile(string name);
+        public Task<MemoryStream> DownloadFile(string url);
+        public Task DeleteFile(string url);
     }
     public class FileHandler : IFileHandler
     {
@@ -31,22 +31,24 @@ namespace PointOfSale.Services
             s3Client = new AmazonS3Client(publicKey, secretKey, bucketRegion);
         }
 
-        public async Task DeleteFile(string name)
+        public async Task DeleteFile(string url)
         {
             var fileTransferUtility = new TransferUtility(s3Client);
+            var fileName = url.Split('/').Last();
             await fileTransferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
             {
                 BucketName = bucketName,
-                Key = name
+                Key = fileName
             });
         }
 
-        public async Task<MemoryStream> DownloadFile(string name)
+        public async Task<MemoryStream> DownloadFile(string url)
         {
+            var fileName = url.Split('/').Last();
             GetObjectRequest request = new GetObjectRequest
             {
                 BucketName = bucketName,
-                Key = name
+                Key = fileName
             };
             GetObjectResponse response = await s3Client.GetObjectAsync(request);
             Stream responseStream = response.ResponseStream;
