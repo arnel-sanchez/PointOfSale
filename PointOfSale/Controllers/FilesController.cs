@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using PointOfSale.Models;
 using PointOfSale.Services;
 
@@ -30,7 +31,8 @@ namespace PointOfSale.Controllers
         }
 
         [HttpPost("upload")]
-        public IActionResult Upload([FromForm] IFormFile file)
+        [EnableCors(PolicyName = "MyPolicyCors")]
+        public IActionResult Upload(IFormFile file)
         {
             try
             {

@@ -72,7 +72,7 @@ namespace PointOfSale.DataAccess
             item.Quantity = quantity;
             item.Modifiers = dbContext.Modifiers.Where(x => modifiersIds.Contains(x.Id) == true).ToList();
 
-            dbContext.Items.Add(item);
+            dbContext.Items.Update(item);
             dbContext.SaveChanges();
         }
 

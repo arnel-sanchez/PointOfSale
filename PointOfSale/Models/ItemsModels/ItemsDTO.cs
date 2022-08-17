@@ -14,7 +14,6 @@ namespace PointOfSale.Models.ItemsModels
         public string Description { get; set; }
 
         [Required]
-        [Precision(2)]
         public double Price { get; set; }
 
         [Required]

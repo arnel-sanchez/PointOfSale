@@ -14,7 +14,6 @@ namespace PointOfSale.Models.DataBaseModels
         public List<ModifiersByItem> Items { get; set; }
 
         [Required]
-        [Precision(2)]
         public double TotalPrice { get; set; }
 
         [Required]

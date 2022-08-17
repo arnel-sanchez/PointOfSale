@@ -10,9 +10,9 @@ namespace PointOfSale.Controllers
     [ApiController]
     public class ModifierController : ControllerBase
     {
-        public readonly ModifiersDataAccess _modifierService;
+        public readonly IModifiersDataAccess _modifierService;
 
-        public ModifierController(ModifiersDataAccess modifiersDataAccess)
+        public ModifierController(IModifiersDataAccess modifiersDataAccess)
         {
             _modifierService = modifiersDataAccess;
         }

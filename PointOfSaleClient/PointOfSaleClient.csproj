@@ -3,19 +3,18 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Pages\Items.cshtml.cs" />
-    <Compile Remove="Pages\Modifiers.cshtml.cs" />
-    <Compile Remove="Pages\Sales.cshtml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="Pages\Items.cshtml" />
-    <Content Remove="Pages\Modifiers.cshtml" />
-    <Content Remove="Pages\Sales.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="DevExpress.Blazor" Version="21.2.7" />
-    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="22.1.3" />
+    <PackageReference Include="DevExpress.Blazor.RichEdit" Version="21.2.7" />
+    <PackageReference Include="DevExpress.Blazor.es" Version="21.2.7" />
+    <PackageReference Include="DevExpress.Blazor.RichEdit.es" Version="21.2.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PointOfSale\PointOfSale.csproj" />
   </ItemGroup>
 </Project>

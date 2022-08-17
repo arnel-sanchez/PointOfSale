@@ -1,0 +1,144 @@
+﻿@page "/add-modifier/{itemId}"
+
+@using PointOfSaleClient.Models
+@using PointOfSaleClient.Services
+@using DevExpress.Blazor
+@inject NavigationManager navigationManager
+@inject IModifierService ModifierService
+@inject IItemService ItemService
+
+<di class="container">
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6" style="text-align: center;">
+            <h3>Modifiers of the @Item.name item</h3>
+            <img style="height: 50%;" src="@Item.image" />
+        </div>
+        <div class="col-3"></div>
+    </div>
+    <div class="row" style="padding-top: -30%;">
+        <div class="row">
+        <DxGrid Data="@DataSource"
+            KeyFieldName="id"
+            PageSize="12"
+            ValidationEnabled="true"
+            AllowSelectRowByClick="true"
+            EditModelSaving="Grid_EditModelSaving"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            DataItemDeleting="Grid_DataItemDeleting"
+            PopupEditFormCssClass="pw-800"
+            EditMode="GridEditMode.PopupEditForm">
+            <Columns>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="id" Visible = "false" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="name" Caption="Name"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="description" Caption="Description"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="price" Caption="Price"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="add" Caption="Is it a discount?">
+                    <CellDisplayTemplate>
+                            <div style="text-align: center;">
+                                @context.Value ? "YES" : "NO"
+                            </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridCommandColumn TextAlignment="GridTextAlignment.Center" Width="15%" />
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var modifier = (Modifier)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="ID:" Visible="false" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@modifier.id" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@modifier.name" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@modifier.description" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Price:" ColSpanMd="6">
+                        <DxMaskedInput @bind-Value="@modifier.price" Mask="0.00" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is it a discount?" ColSpanMd="6">
+                        <DxCheckBox CheckType="CheckType.Switch"
+                                    @bind-Checked="@modifier.add">
+                        </DxCheckBox>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+        </DxGrid>
+    </div>
+    </div>
+</di>
+
+@code {
+    [Parameter]
+    public string? itemId { get; set; }
+    Item Item { get; set; }
+    List<Modifier> DataSource { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Item = new Item
+        {
+            image = "",
+            name = ""
+        };
+        if (string.IsNullOrEmpty(itemId))
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+        var item = await ItemService.GetItem(itemId);
+        if(item == null)
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+        Item = item;
+        DataSource = await ModifierService.GetAll();
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
+        if(e.IsNew) {
+            var modifier = (Modifier)e.EditModel;
+            modifier.name = "";
+            modifier.description = "";
+            modifier.id = "";
+            modifier.price = 0.01;
+            modifier.add = false;
+        }
+    }
+
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e) {
+        var modifier = (Modifier)e.EditModel;
+        if(e.IsNew) {
+            await ModifierService.Add(new ModifierDTO{
+                name = modifier.name,
+                description = modifier.description,
+                price = modifier.price,
+                add = modifier.add
+            });
+        }
+        else
+        {
+            await ModifierService.Update(modifier.id, new ModifierDTO{
+                name = modifier.name,
+                description = modifier.description,
+                price = modifier.price,
+                add = modifier.add
+            });
+        }
+        await UpdateDataAsync();
+    }
+
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e) {
+        var modifier = (Modifier)e.DataItem;
+        await ModifierService.Delete(modifier.id);
+        await UpdateDataAsync();
+    }
+
+    async Task UpdateDataAsync() {
+        DataSource = await ModifierService.GetAll();
+    }
+}

@@ -1,7 +1,4 @@
-﻿using PointOfSaleClients.Models;
-using System.ComponentModel.DataAnnotations;
-
-namespace PointOfSaleClients.Models
+﻿namespace PointOfSaleClient.Models
 {
     public class Item
     {

@@ -185,8 +185,7 @@ namespace PointOfSale.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<double>("Price")
-                        .HasPrecision(2)
-                        .HasColumnType("float(2)");
+                        .HasColumnType("float");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -222,8 +221,7 @@ namespace PointOfSale.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<double>("Price")
-                        .HasPrecision(2)
-                        .HasColumnType("float(2)");
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -269,8 +267,7 @@ namespace PointOfSale.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("TotalPrice")
-                        .HasPrecision(2)
-                        .HasColumnType("float(2)");
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 

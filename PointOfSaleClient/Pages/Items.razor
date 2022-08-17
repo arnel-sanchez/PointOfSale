@@ -1,6 +1,10 @@
 ﻿@page "/items"
+
+@using PointOfSaleClient.Models
+@using PointOfSaleClient.Services
 @using DevExpress.Blazor
-@inject IHttpClientFactory ClientFactory
+@inject NavigationManager navigationManager
+@inject IItemService ItemService
 
 <di class="container">
     <div class="row">
@@ -15,13 +19,14 @@
             KeyFieldName="id"
             PageSize="12"
             ValidationEnabled="true"
-            CustomizeEditModel="Grid_CustomizeEditModel"
+            AllowSelectRowByClick="true"
+            RowClick="Grid_AddModifiers"
             EditModelSaving="Grid_EditModelSaving"
+            CustomizeEditModel="Grid_CustomizeEditModel"
             DataItemDeleting="Grid_DataItemDeleting"
             PopupEditFormCssClass="pw-800"
             EditMode="GridEditMode.PopupEditForm">
             <Columns>
-                <DxGridCommandColumn Width="120px" />
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="id" Visible = "false" />
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="name" Caption="Name"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="description" Caption="Description"/>
@@ -29,26 +34,58 @@
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="quantity" Caption="Quantity"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="category" Caption="Category"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="image" Caption="Image">
+                    <CellDisplayTemplate>
+                        <div style="text-align: center;">
+                            <img style="width: 70%; height: 70%;" src="@context.Value">
+                        </div>
+                    </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code"/>
+                <DxGridCommandColumn TextAlignment="GridTextAlignment.Center" Width="15%" />
             </Columns>
             <EditFormTemplate Context="EditFormContext">
                 @{
                     var item = (Item)EditFormContext.EditModel;
+                    var image = string.IsNullOrEmpty(item.image) ? false : true;
                 }
                 <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="ID:" Visible="false" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.id" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@item.name.ToString()" />
+                        <DxTextBox @bind-Text="@item.name" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@item.description.ToString()" />
+                        <DxTextBox @bind-Text="@item.description" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Price:" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@item.price.ToString()" />
+                        <DxMaskedInput @bind-Value="@item.price" Mask="0.00" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Quantity:" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@item.quantity" MinValue="1" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@item.category.ToString()" />
+                        <DxTextBox @bind-Text="@item.category" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Code:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@item.code" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Image:" Visible="false" ColSpanMd="12">
+                        <DxTextBox @bind-Text="@item.image" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Image:" Visible="@image" ColSpanMd="12">
+                        <div style="text-align: center;">
+                            <img src="@item.image">
+                        </div>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Image:" ColSpanMd="12">
+                        <DxUpload Name="file"
+                            UploadUrl="https://localhost:7134/api/files/upload"
+                            SelectButtonText="Select Image"
+                            AllowedFileExtensions="@(new List<string> { ".jpg", ".jpeg", ".gif", ".png" })" 
+                            MaxFileSize="4000000"/>
+                    </DxFormLayoutItem>
+                    
                 </DxFormLayout>
             </EditFormTemplate>
         </DxGrid>
@@ -60,37 +97,69 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get,
-            "https://localhost:7134/api/items/get-all");
-        request.Headers.Add("Accept", "*/*");
-
-        var client = ClientFactory.CreateClient();
-
-        var response = await client.SendAsync(request);
-        var responseString = await response.Content.ReadAsStringAsync();
-        var res = JsonSerializer.Deserialize<Response<List<Item>>>(responseString);
-        if (response.IsSuccessStatusCode)
-        {
-            DataSource = res.data;
-        }
-        else
-        {
-            //Show Error
-        }
+        DataSource = await ItemService.GetAll();
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
-        return;
+        if(e.IsNew) {
+            var item = (Item)e.EditModel;
+            item.name = "";
+            item.description = "";
+            item.category = "";
+            item.code = "";
+            item.id = "";
+            item.image= "";
+            item.price = 0.01;
+            item.quantity = 1;
+            item.modifiersId = new List<Modifier>();
+        }
     }
+
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e) {
-        return;
+        var item = (Item)e.EditModel;
+        if (string.IsNullOrEmpty(item.image)) item.image = "images/item.webp";
+        if (item.modifiersId == null) item.modifiersId = new List<Modifier>();
+        if(e.IsNew) {
+            await ItemService.Add(new ItemDTO{
+                name = item.name,
+                category = item.category,
+                code = item.code,
+                description = item.description,
+                image = item.image,
+                price = item.price,
+                quantity = item.quantity,
+                modifiersId = item.modifiersId.Select(x => x.id).ToList()
+            });
+        }
+        else
+        {
+            await ItemService.Update(item.id, new ItemDTO{
+                name = item.name,
+                category = item.category,
+                code = item.code,
+                description = item.description,
+                image = item.image,
+                price = item.price,
+                quantity = item.quantity,
+                modifiersId = item.modifiersId.Select(x => x.id).ToList()
+            });
+        }
+        await UpdateDataAsync();
     }
 
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e) {
-        return;
+        var item = (Item)e.DataItem;
+        await ItemService.Delete(item.id);
+        await UpdateDataAsync();
+    }
+
+    void Grid_AddModifiers(GridRowClickEventArgs e)
+    {
+        var itemId = (string)e.Grid.GetRowValue(e.VisibleIndex, "id");
+        navigationManager.NavigateTo($"{navigationManager.BaseUri}add-modifier/{itemId}");
     }
 
     async Task UpdateDataAsync() {
-        return;
+        DataSource = await ItemService.GetAll();
     }
 }

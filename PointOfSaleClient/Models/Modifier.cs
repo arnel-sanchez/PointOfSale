@@ -1,14 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PointOfSaleClients.Models
+﻿namespace PointOfSaleClient.Models
 {
     public class Modifier
     {
+        public string id;
+
         public string name;
         
         public string description;
         
-        public decimal price;
+        public double price;
         
         public bool add;
     }

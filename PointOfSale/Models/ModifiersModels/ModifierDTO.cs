@@ -22,7 +22,6 @@ namespace PointOfSale.Models.ModifiersModels
         public readonly string Description;
 
         [Required]
-        [Precision(2)]
         public readonly double Price;
 
         [Required]

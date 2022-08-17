@@ -1,4 +1,4 @@
-﻿namespace PointOfSaleClients.Models
+﻿namespace PointOfSaleClient.Models
 {
     public class Response<T>
     {
