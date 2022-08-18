@@ -1,30 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace PointOfSale.Models.ModifiersModels
 {
     public class ModifierDTO
     {
-        public ModifierDTO(string name, string description, double price, bool add)
-        {
-            Name = name;
-            Description = description;
-            Price = price;
-            Add = add;
-        }
-
         [Required]
         [DataType(DataType.Text), StringLength(20)]
-        public readonly string Name;
+        public string Name;
 
         [Required]
         [DataType(DataType.Text), StringLength(255)]
-        public readonly string Description;
+        public string Description;
 
         [Required]
-        public readonly double Price;
+        public double Price;
 
         [Required]
-        public readonly bool Add;
+        public bool Add;
     }
 }

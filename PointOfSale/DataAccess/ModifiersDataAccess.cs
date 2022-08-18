@@ -1,5 +1,4 @@
 ﻿using PointOfSale.Models.DataBaseModels;
-using PointOfSale.Models.ModifiersModels;
 
 namespace PointOfSale.DataAccess
 {

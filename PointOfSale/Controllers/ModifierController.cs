@@ -18,6 +18,7 @@ namespace PointOfSale.Controllers
         }
 
         [HttpGet("get-all")]
+        [Produces("application/json")]
         public IActionResult Get()
         {
             try
@@ -32,6 +33,7 @@ namespace PointOfSale.Controllers
         }
 
         [HttpGet("get/{id}")]
+        [Produces("application/json")]
         public IActionResult Get(string id)
         {
             try
@@ -46,6 +48,7 @@ namespace PointOfSale.Controllers
         }
 
         [HttpPost("add")]
+        [Produces("application/json")]
         public IActionResult Post([FromBody] ModifierDTO modifier)
         {
             try
@@ -60,6 +63,7 @@ namespace PointOfSale.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Produces("application/json")]
         public IActionResult Put(string id, [FromBody] ModifierDTO modifier)
         {
             try
@@ -74,6 +78,7 @@ namespace PointOfSale.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Produces("application/json")]
         public IActionResult Delete(string id)
         {
             try
