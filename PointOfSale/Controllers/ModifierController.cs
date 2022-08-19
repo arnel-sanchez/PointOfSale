@@ -2,6 +2,7 @@
 using PointOfSale.DataAccess;
 using PointOfSale.Models;
 using PointOfSale.Models.DataBaseModels;
+using PointOfSale.Models.ItemsModels;
 using PointOfSale.Models.ModifiersModels;
 
 namespace PointOfSale.Controllers

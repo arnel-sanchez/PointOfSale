@@ -2,12 +2,12 @@
 {
     public class ModifierDTO
     {
-        public string name;
+        public string name { get; set; }
 
-        public string description;
+        public string description { get; set; }
 
-        public double price;
+        public double price { get; set; }
 
-        public bool add;
+        public bool add { get; set; }
     }
 }

@@ -29,16 +29,15 @@
             PopupEditFormCssClass="pw-800"
             EditMode="GridEditMode.PopupEditForm">
             <Columns>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="id" Visible = "false" />
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="name" Caption="Name"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="description" Caption="Description"/>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="price" Caption="Price"/>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="add" Caption="Is it a discount?">
+                <DxGridDataColumn FieldName="id" Caption="Assign" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
                     <CellDisplayTemplate>
-                            <div style="text-align: center;">
-                                @context.Value ? "YES" : "NO"
-                            </div>
+                        <button class="btn btn-primary grid-btn-link" @onclick="() => AssignDisassign((string)context.Value)"></button>
                     </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="add" Caption="Is it a discount?">
                 </DxGridDataColumn>
                 <DxGridCommandColumn TextAlignment="GridTextAlignment.Center" Width="15%" />
             </Columns>
@@ -140,5 +139,9 @@
 
     async Task UpdateDataAsync() {
         DataSource = await ModifierService.GetAll();
+    }
+
+    public void AssignDisassign(string modifierId) {
+        
     }
 }
