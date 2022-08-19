@@ -78,10 +78,11 @@
                             <img src="@item.image">
                         </div>
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Image:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Image:" Id="imageUpload" ColSpanMd="12">
                         <DxUpload Name="file"
                             UploadUrl="https://localhost:7134/api/files/upload/"
                             SelectButtonText="Select Image"
+                            FileUploaded="@((args) => OnFileUploaded(args, ((ValueEditContext)context)))"
                             AllowedFileExtensions="@(new List<string> { ".jpg", ".jpeg", ".gif", ".png" })" 
                             MaxFileSize="4000000"/>
                     </DxFormLayoutItem>
@@ -93,6 +94,7 @@
 
 @code {
     List<Item> DataSource { get; set; }
+    private string imagenName = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,8 +117,10 @@
     }
 
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e) {
+        var prueba = e.EditModel;
         var item = (Item)e.EditModel;
         if (string.IsNullOrEmpty(item.image)) item.image = "images/item.webp";
+        if (!string.IsNullOrEmpty(imagenName)) item.image = imagenName;
         if (item.modifiersId == null) item.modifiersId = new List<Modifier>();
         if(e.IsNew) {
             await ItemService.Add(new ItemDTO{
@@ -158,6 +162,10 @@
         navigationManager.NavigateTo($"{navigationManager.BaseUri}add-modifier/{itemId}");
     }
 
+    protected void OnFileUploaded(FileUploadEventArgs args, ValueEditContext context) {
+        imagenName = "https://pos-arnel-bucket.s3.us-east-2.amazonaws.com/" + args.FileInfo.Name;
+    }    
+    
     async Task UpdateDataAsync() {
         DataSource = await ItemService.GetAll();
     }
