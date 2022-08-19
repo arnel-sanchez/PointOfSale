@@ -59,7 +59,12 @@ namespace PointOfSaleClient.Services
             var request = new HttpRequestMessage(HttpMethod.Post,
             "https://localhost:7134/api/modifiers/add");
             request.Headers.Add("Accept", "*/*");
-            request.Content = new StringContent(JsonSerializer.Serialize(modifier), Encoding.UTF8, "application/json");
+            var json = "{\"name\": \""+ modifier.name +"\"" +
+                       "\"description\": " + modifier.description + "\"" +
+                       "\"price\": " + modifier.price.ToString() + "\"" +
+                       "\"add\": " + modifier.add.ToString() + "\"" +
+                    "}";
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var client = ClientFactory.CreateClient();
 

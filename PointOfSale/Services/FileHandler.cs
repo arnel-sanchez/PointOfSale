@@ -25,9 +25,9 @@ namespace PointOfSale.Services
         
         public FileHandler()
         {
-            publicKey = Environment.GetEnvironmentVariable("AWS_PUBLIC_KEY");
-            secretKey = Environment.GetEnvironmentVariable("AWS_PRIVATE_KEY");
-            bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
+            publicKey = "AKIAYCXVMZ23OLLQWEIR"; //Environment.GetEnvironmentVariable("AWS_PUBLIC_KEY");
+            secretKey = "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"; //Environment.GetEnvironmentVariable("AWS_PRIVATE_KEY");
+            bucketName = "pos-arnel-bucket"; //Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
             s3Client = new AmazonS3Client(publicKey, secretKey, bucketRegion);
         }
 

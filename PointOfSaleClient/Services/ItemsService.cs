@@ -1,4 +1,5 @@
-﻿using PointOfSaleClient.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using PointOfSaleClient.Models;
 using System.Text;
 using System.Text.Json;
 

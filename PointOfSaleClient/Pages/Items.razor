@@ -80,12 +80,11 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Image:" ColSpanMd="12">
                         <DxUpload Name="file"
-                            UploadUrl="https://localhost:7134/api/files/upload"
+                            UploadUrl="https://localhost:7134/api/files/upload/"
                             SelectButtonText="Select Image"
                             AllowedFileExtensions="@(new List<string> { ".jpg", ".jpeg", ".gif", ".png" })" 
                             MaxFileSize="4000000"/>
                     </DxFormLayoutItem>
-                    
                 </DxFormLayout>
             </EditFormTemplate>
         </DxGrid>

@@ -100,18 +100,11 @@ builder.Services.AddHostedService<JwtRefreshTokenCache>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        builder => { builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().AllowAnyOrigin(); });
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "MyPolicyCors",
-                      policy =>
-                      {
-                          policy.WithOrigins("https://localhost:7060/items");
-                          policy.AllowAnyHeader();
-                          policy.AllowAnyMethod();
-                      });
+        builder => {
+            builder.AllowAnyHeader();
+            builder.AllowAnyMethod();
+            builder.AllowAnyOrigin();
+        });
 });
 
 var app = builder.Build();
@@ -137,6 +130,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAll");
 
 app.MapControllers();
 

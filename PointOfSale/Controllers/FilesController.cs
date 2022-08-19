@@ -31,11 +31,11 @@ namespace PointOfSale.Controllers
         }
 
         [HttpPost("upload")]
-        [EnableCors(PolicyName = "MyPolicyCors")]
-        public IActionResult Upload(IFormFile file)
+        public IActionResult Upload()
         {
             try
             {
+                var file = Request.Form.Files[0];
                 var fileUrl = _fileHandler.UploadFile(file);
                 return Ok(new Response<string> { Data = fileUrl, Code = 200, Message = "File Uploaded Success" });
             }
