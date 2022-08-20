@@ -34,7 +34,7 @@
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="price" Caption="Price"/>
                 <DxGridDataColumn FieldName="id" Caption="Assign" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
                     <CellDisplayTemplate>
-                        <button class="btn btn-primary grid-btn-link" @onclick="() => AssignDisassign((string)context.Value)"></button>
+                        <button class="btn btn-primary grid-btn-link" @onclick="() => AssignDisassign((string)context.Value)">Assign</button>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="add" Caption="Is it a discount?">
@@ -88,14 +88,26 @@
             navigationManager.NavigateTo("/");
             return;
         }
-        var item = await ItemService.GetItem(itemId);
-        if(item == null)
+        await LoadItem();
+        if(Item == null)
         {
             navigationManager.NavigateTo("/");
             return;
         }
-        Item = item;
-        DataSource = await ModifierService.GetAll();
+        await LoadData();
+    }
+
+    private async Task LoadItem()
+    {
+        Item = await ItemService.GetItem(itemId);
+        if (Item.modifiersId == null)
+            Item.modifiersId = new List<Modifier>();
+    }
+
+    private async Task LoadData()
+    {
+        var data = await ModifierService.GetAll();
+        DataSource = data.Where(x => !Item.modifiersId.Contains(x)).ToList();
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
@@ -138,7 +150,7 @@
     }
 
     async Task UpdateDataAsync() {
-        DataSource = await ModifierService.GetAll();
+        await LoadData();
     }
 
     public void AssignDisassign(string modifierId) {
