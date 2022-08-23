@@ -16,6 +16,8 @@
 
         public string code { get; set; }
 
+        public string qrCode { get; set; }
+
         public List<string> modifiersId { get; set; }
     }
 }

@@ -3,7 +3,7 @@
     public class Item
     {
         public string id { get; set; }
-        
+
         public string name { get; set; }
 
         public string description { get; set; }
@@ -17,6 +17,8 @@
         public string image { get; set; }
 
         public string code { get; set; }
+
+        public string qrCode {get; set;}
 
         public List<Modifier> modifiersId { get; set; }
     }

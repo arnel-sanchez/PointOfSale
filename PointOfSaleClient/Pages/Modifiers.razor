@@ -104,8 +104,7 @@
 
     private async Task LoadData()
     {
-        var data = await ModifierService.GetAll();
-        DataSource = data.Where(x => !Item.modifiersId.Contains(x)).ToList();
+        DataSource = await ModifierService.GetAll();
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
@@ -165,6 +164,7 @@
 
     public async Task AssignDisassign(string modifierId) {
         await ItemService.AssignDissasignModifier(Item.id, modifierId);
+        await LoadItem();
         await LoadData();
     }
 }

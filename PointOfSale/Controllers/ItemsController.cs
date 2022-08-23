@@ -63,7 +63,7 @@ namespace PointOfSale.Controllers
                 {
                     image = item.Image;
                 }
-                _itemDataAccess.AddItem(item.Name, item.Price, item.Description, item.Quantity, item.Category, image, code, item.ModifiersId);
+                _itemDataAccess.AddItem(item.Name, item.Price, item.Description, item.Quantity, item.Category, image, item.Code,code, item.ModifiersId);
                 return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Added Success" });
             }
             catch (System.Exception ex)
@@ -91,7 +91,7 @@ namespace PointOfSale.Controllers
                 {
                     image = item.Image;
                 }
-                _itemDataAccess.UpdateItem(id, item.Name, item.Price, item.Description, item.Quantity, item.Category, image, code, item.ModifiersId);
+                _itemDataAccess.UpdateItem(id, item.Name, item.Price, item.Description, item.Quantity, item.Category, image, item.Code, code, item.ModifiersId);
                 return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Updated Success" });
             }
             catch (System.Exception ex)

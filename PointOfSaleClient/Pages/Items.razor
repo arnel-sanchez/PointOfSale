@@ -40,7 +40,8 @@
                         </div>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code">
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="qrCode" Caption="QRCode">
                     <CellDisplayTemplate>
                         <div style="text-align: center;">
                             <img style="width: 70%; height: 70%;" src="@context.Value">
@@ -137,6 +138,7 @@
                 image = item.image,
                 price = item.price,
                 quantity = item.quantity,
+                qrCode = "",
                 modifiersId = item.modifiersId.Select(x => x.id).ToList()
             });
         }
@@ -146,6 +148,7 @@
                 name = item.name,
                 category = item.category,
                 code = item.code,
+                qrCode = "",
                 description = item.description,
                 image = item.image,
                 price = item.price,

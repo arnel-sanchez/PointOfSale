@@ -28,6 +28,8 @@ namespace PointOfSale.Models.ItemsModels
         [Required]
         public string Code { get; set; }
 
+        public string QRCode { get; set; }
+
         public List<string> ModifiersId { get; set; }
     }
 }

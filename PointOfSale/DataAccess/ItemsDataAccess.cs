@@ -5,13 +5,13 @@ namespace PointOfSale.DataAccess
 {
     public interface IItemsDataAccess
     {
-        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
+        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, string qrCode, List<string> modifiersIds);
 
         public Item GetItems(string id);
 
         public List<Item> GetItems();
 
-        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
+        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, string qrCode, List<string> modifiersIds);
 
         public void DeleteItem(string id);
 
@@ -27,9 +27,8 @@ namespace PointOfSale.DataAccess
             this.dbContext = dbContext;
         }
 
-        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
+        public void AddItem(string name, double price, string description, int quantity, string category, string image, string code, string qrCode, List<string> modifiersIds)
         {
-            //agregar la ruta donde se muestra la imagen
             var item = new Item
             {
                 Id = Guid.NewGuid().ToString(),
@@ -40,6 +39,7 @@ namespace PointOfSale.DataAccess
                 Name = name,
                 Price = price,
                 Quantity = quantity,
+                QRCode = qrCode,
                 Modifiers = dbContext.Modifiers.Where(x => modifiersIds.Contains(x.Id) == true).ToList()
             };
 
@@ -49,15 +49,15 @@ namespace PointOfSale.DataAccess
 
         public Item GetItems(string id)
         {
-            return dbContext.Items.Where(x => x.Id == id).FirstOrDefault();
+            return dbContext.Items.Include(x => x.Modifiers).Where(x => x.Id == id).FirstOrDefault();
         }
 
         public List<Item> GetItems()
         {
-            return dbContext.Items.ToList();
+            return dbContext.Items.Include(x => x.Modifiers).ToList();
         }
 
-        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
+        public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, string qrCode, List<string> modifiersIds)
         {
             var item = dbContext.Items.Where(x => x.Id == id).FirstOrDefault();
             if (item == null)
@@ -72,6 +72,7 @@ namespace PointOfSale.DataAccess
             item.Name = name;
             item.Price = price;
             item.Quantity = quantity;
+            item.QRCode = qrCode;
             item.Modifiers = dbContext.Modifiers.Where(x => modifiersIds.Contains(x.Id) == true).ToList();
 
             dbContext.Items.Update(item);

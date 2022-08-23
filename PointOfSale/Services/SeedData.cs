@@ -117,9 +117,9 @@ namespace PointOfSale.Services
         {
             if(itemsDataAcces.GetItems().Count == 0)
             {
-                itemsDataAcces.AddItem("Item1", 1.40, "Probando los Items", 50, "Category1", "", "1234567", new List<string>());
-                itemsDataAcces.AddItem("Item2", 1.50, "Probando los Items", 10, "Category2", "", "1234568", new List<string>());
-                itemsDataAcces.AddItem("Item3", 1.60, "Probando los Items", 20, "Category4", "", "1234569", new List<string>());
+                itemsDataAcces.AddItem("Item1", 1.40, "Probando los Items", 50, "Category1", "", "1234567", "", new List<string>());
+                itemsDataAcces.AddItem("Item2", 1.50, "Probando los Items", 10, "Category2", "", "1234568", "", new List<string>());
+                itemsDataAcces.AddItem("Item3", 1.60, "Probando los Items", 20, "Category4", "", "1234569", "", new List<string>());
             }
         }
     }

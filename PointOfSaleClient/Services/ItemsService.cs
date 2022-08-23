@@ -110,6 +110,21 @@ namespace PointOfSaleClient.Services
             var response = await client.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
             var res = JsonSerializer.Deserialize<Response<Item>>(responseString);
+            res.data.modifiersId = new List<Modifier>();
+            var conversion1 = responseString.Split("\"modifiers\":[");
+            var conversion2 = conversion1[1].Split("]");
+            var conversion3 = conversion2[0].Split("},{");
+            foreach (var modifier in conversion3)
+            {
+                if (string.IsNullOrEmpty(modifier))
+                    break;
+                var modifierToParse = modifier;
+                if (modifier[0]!='{')
+                    modifierToParse = "{" + modifierToParse;
+                if (modifier[modifier.Length - 1] != '}')
+                    modifierToParse = modifierToParse + "}";
+                res.data.modifiersId.Add(JsonSerializer.Deserialize<Modifier>(modifierToParse));
+            }
             if (response.IsSuccessStatusCode)
             {
                 return res.data;
