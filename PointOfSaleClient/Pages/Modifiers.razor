@@ -12,12 +12,11 @@
         <div class="col-3"></div>
         <div class="col-6" style="text-align: center;">
             <h3>Modifiers of the @Item.name item</h3>
-            <img style="height: 50%;" src="@Item.image" />
+            <img src="@Item.image" />
         </div>
         <div class="col-3"></div>
     </div>
-    <div class="row" style="padding-top: -30%;">
-        <div class="row">
+    <div class="row mt-2">
         <DxGrid Data="@DataSource"
             KeyFieldName="id"
             PageSize="12"
@@ -34,7 +33,7 @@
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="price" Caption="Price"/>
                 <DxGridDataColumn FieldName="id" Caption="Assign" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
                     <CellDisplayTemplate>
-                        <button class="btn btn-primary grid-btn-link" @onclick="() => AssignDisassign((string)context.Value)">Assign</button>
+                        <button class="btn btn-primary grid-btn-link" @onclick="() => AssignDisassign((string)context.Value)">@AssignButtonText(((Modifier)context.DataItem).id)</button>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="add" Caption="Is it a discount?">
@@ -66,7 +65,6 @@
                 </DxFormLayout>
             </EditFormTemplate>
         </DxGrid>
-    </div>
     </div>
 </di>
 
@@ -153,7 +151,20 @@
         await LoadData();
     }
 
-    public void AssignDisassign(string modifierId) {
-        
+    public string AssignButtonText(string id)
+    {
+        if(Item==null)
+            return "Assign";
+        foreach (var modifier in Item.modifiersId)
+        {
+            if (modifier.id == id)
+                return "Disassign";
+        }
+        return "Assign";
+    }
+
+    public async Task AssignDisassign(string modifierId) {
+        await ItemService.AssignDissasignModifier(Item.id, modifierId);
+        await LoadData();
     }
 }

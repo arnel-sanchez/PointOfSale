@@ -16,6 +16,8 @@ namespace PointOfSaleClient.Services
         public Task<string> Update(string id, ItemDTO item);
 
         public Task<string> Delete(string id);
+
+        public Task<string> AssignDissasignModifier(string itemId, string modifierId);
     }
 
     public class ItemService : IItemService
@@ -140,6 +142,30 @@ namespace PointOfSaleClient.Services
             else
             {
                 if(!string.IsNullOrEmpty(res.message))
+                    throw new Exception(res.message);
+                throw new Exception("Error");
+            }
+        }
+
+        public async Task<string> AssignDissasignModifier(string itemId, string modifierId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Put,
+            $"https://localhost:7134/api/items/assign/{itemId}/{modifierId}");
+            request.Headers.Add("Accept", "*/*");
+
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return res.message;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(res.message))
                     throw new Exception(res.message);
                 throw new Exception("Error");
             }

@@ -40,7 +40,13 @@
                         </div>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="code" Caption="Code">
+                    <CellDisplayTemplate>
+                        <div style="text-align: center;">
+                            <img style="width: 70%; height: 70%;" src="@context.Value">
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridCommandColumn TextAlignment="GridTextAlignment.Center" Width="15%" />
             </Columns>
             <EditFormTemplate Context="EditFormContext">
@@ -163,7 +169,7 @@
     }
 
     protected void OnFileUploaded(FileUploadEventArgs args, ValueEditContext context) {
-        imagenName = "https://pos-arnel-bucket.s3.us-east-2.amazonaws.com/" + args.FileInfo.Name;
+        imagenName =  args.FileInfo.Name;
     }    
     
     async Task UpdateDataAsync() {

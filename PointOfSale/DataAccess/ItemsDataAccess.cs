@@ -1,4 +1,5 @@
-﻿using PointOfSale.Models.DataBaseModels;
+﻿using Microsoft.EntityFrameworkCore;
+using PointOfSale.Models.DataBaseModels;
 
 namespace PointOfSale.DataAccess
 {
@@ -13,6 +14,8 @@ namespace PointOfSale.DataAccess
         public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds);
 
         public void DeleteItem(string id);
+
+        public void AssignDisassign(string itemId, string modifierId);
     }
     
     public class ItemsDataAccess : IItemsDataAccess
@@ -56,7 +59,6 @@ namespace PointOfSale.DataAccess
 
         public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, List<string> modifiersIds)
         {
-            //agregar la ruta donde se muestra la imagen
             var item = dbContext.Items.Where(x => x.Id == id).FirstOrDefault();
             if (item == null)
             {
@@ -84,6 +86,22 @@ namespace PointOfSale.DataAccess
                 throw new Exception("Item not found");
             }
             dbContext.Items.Remove(item);
+            dbContext.SaveChanges();
+        }
+
+        public void AssignDisassign(string itemId, string modifierId)
+        {
+            var item = dbContext.Items.Include(x => x.Modifiers).Where(x => x.Id == itemId).First();
+            var modifier = dbContext.Modifiers.Where(x => x.Id == modifierId).First();
+            if (item.Modifiers.Contains(modifier))
+            {
+                item.Modifiers.Remove(modifier);
+            }
+            else
+            {
+                item.Modifiers.Add(modifier);
+            }
+            dbContext.Items.Update(item);
             dbContext.SaveChanges();
         }
     }

@@ -3,6 +3,7 @@ using PointOfSale.DataAccess;
 using PointOfSale.Models;
 using PointOfSale.Models.DataBaseModels;
 using PointOfSale.Models.ItemsModels;
+using PointOfSale.Services;
 
 namespace PointOfSale.Controllers
 {
@@ -11,10 +12,12 @@ namespace PointOfSale.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IItemsDataAccess _itemDataAccess;
+        private readonly IFileHandler _fileHandler;
 
-        public ItemsController(IItemsDataAccess itemDataAccess)
+        public ItemsController(IItemsDataAccess itemDataAccess, IFileHandler fileHandler)
         {
             _itemDataAccess = itemDataAccess;
+            _fileHandler = fileHandler;
         }
 
         [HttpGet("get-all")]
@@ -53,7 +56,14 @@ namespace PointOfSale.Controllers
         {
             try
             {
-                _itemDataAccess.AddItem(item.Name, item.Price, item.Description, item.Quantity, item.Category, item.Image, item.Code, item.ModifiersId);
+                var qr = QREncoderService.GenerateQRCode(item.Code);
+                var code = _fileHandler.GetURL() + _fileHandler.UploadFile(qr);
+                var image = _fileHandler.GetURL() + item.Image;
+                if (item.Image.Equals("images/item.webp"))
+                {
+                    image = item.Image;
+                }
+                _itemDataAccess.AddItem(item.Name, item.Price, item.Description, item.Quantity, item.Category, image, code, item.ModifiersId);
                 return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Added Success" });
             }
             catch (System.Exception ex)
@@ -68,8 +78,36 @@ namespace PointOfSale.Controllers
         {
             try
             {
-                _itemDataAccess.UpdateItem(id, item.Name, item.Price, item.Description, item.Quantity, item.Category, item.Image, item.Code, item.ModifiersId);
+                var itemTemp = _itemDataAccess.GetItems(id);
+                _fileHandler.DeleteFile(itemTemp.Code);
+                if (!itemTemp.Image.Equals("images/item.webp"))
+                {
+                    _fileHandler.DeleteFile(itemTemp.Image);
+                }
+                var qr = QREncoderService.GenerateQRCode(item.Code);
+                var code = _fileHandler.GetURL() + _fileHandler.UploadFile(qr);
+                var image = _fileHandler.GetURL() + item.Image;
+                if (item.Image.Equals("images/item.webp"))
+                {
+                    image = item.Image;
+                }
+                _itemDataAccess.UpdateItem(id, item.Name, item.Price, item.Description, item.Quantity, item.Category, image, code, item.ModifiersId);
                 return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Updated Success" });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+            }
+        }
+
+        [HttpPut("assign/{itemId}/{modifierId}")]
+        [Produces("application/json")]
+        public IActionResult Put(string itemId, string modifierId)
+        {
+            try
+            {
+                _itemDataAccess.AssignDisassign(itemId, modifierId);
+                return Ok(new Response<string> { Code = 200, Data = "", Message = "Modifier Assigned/Disasigned Success" });
             }
             catch (System.Exception ex)
             {
@@ -83,6 +121,12 @@ namespace PointOfSale.Controllers
         {
             try
             {
+                var item = _itemDataAccess.GetItems(id);
+                _fileHandler.DeleteFile(item.Code);
+                if (!item.Image.Equals("images/item.webp"))
+                {
+                    _fileHandler.DeleteFile(item.Image);
+                }
                 _itemDataAccess.DeleteItem(id);
                 return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Deleted Success" });
             }

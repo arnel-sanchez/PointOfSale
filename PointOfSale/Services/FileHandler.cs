@@ -12,6 +12,8 @@ namespace PointOfSale.Services
     public interface IFileHandler
     {
         public string UploadFile(IFormFile file);
+        public string GetURL();
+        public string UploadFile(byte[] file);
         public Task<MemoryStream> DownloadFile(string url);
         public Task DeleteFile(string url);
     }
@@ -60,12 +62,27 @@ namespace PointOfSale.Services
             }
         }
 
+        public string GetURL()
+        {
+            return "https://" + bucketName + ".s3." + bucketRegion.SystemName + ".amazonaws.com/";
+        }
+
         public string UploadFile(IFormFile file)
         {
             var fileTransferUtility =
                     new TransferUtility(s3Client);
             fileTransferUtility.Upload(file.OpenReadStream(), bucketName, file.FileName);
             return file.FileName;
+        }
+
+        public string UploadFile(byte[] file)
+        {
+            var name = Guid.NewGuid().ToString();
+            var fileTransferUtility =
+                    new TransferUtility(s3Client);
+            Stream stream = new MemoryStream(file);
+            fileTransferUtility.Upload(stream, bucketName, name);
+            return name;
         }
     }
 }
