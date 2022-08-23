@@ -36,6 +36,9 @@ namespace PointOfSale.Models.DataBaseModels
         [Required]
         public string QRCode { get; set; }
 
+        [Required]
+        public bool IsDeleted { get; set; }
+
         public List<Modifier> Modifiers { get; set; }
     }
 }

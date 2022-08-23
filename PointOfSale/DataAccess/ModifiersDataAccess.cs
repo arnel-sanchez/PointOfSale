@@ -32,7 +32,8 @@ namespace PointOfSale.DataAccess
                 Name = name,
                 Description = description,
                 Price = price,
-                Add = add
+                Add = add,
+                IsDeleted = false
             };
 
             dbContext.Modifiers.Add(modifier);
@@ -47,8 +48,8 @@ namespace PointOfSale.DataAccess
             {
                 throw new Exception("Modifier not found");
             }
-
-            dbContext.Modifiers.Remove(modifier);
+            modifier.IsDeleted = true;
+            dbContext.Modifiers.Update(modifier);
             dbContext.SaveChanges();
         }
 
@@ -72,12 +73,12 @@ namespace PointOfSale.DataAccess
 
         public List<Modifier> GetModifiers()
         {
-            return dbContext.Modifiers.ToList();
+            return dbContext.Modifiers.Where(x => !x.IsDeleted).ToList();
         }
 
         public Modifier GetModifiers(string id)
         {
-            var modifier = dbContext.Modifiers.Where(x => x.Id == id).FirstOrDefault();
+            var modifier = dbContext.Modifiers.Where(x => x.Id == id && !x.IsDeleted).FirstOrDefault();
 
             if (modifier == null)
             {

@@ -40,7 +40,8 @@ namespace PointOfSale.DataAccess
                 Price = price,
                 Quantity = quantity,
                 QRCode = qrCode,
-                Modifiers = dbContext.Modifiers.Where(x => modifiersIds.Contains(x.Id) == true).ToList()
+                IsDeleted = false,
+                Modifiers = dbContext.Modifiers.Where(x => modifiersIds.Contains(x.Id) == true && !x.IsDeleted).ToList()
             };
 
             dbContext.Items.Add(item);
@@ -49,12 +50,12 @@ namespace PointOfSale.DataAccess
 
         public Item GetItems(string id)
         {
-            return dbContext.Items.Include(x => x.Modifiers).Where(x => x.Id == id).FirstOrDefault();
+            return dbContext.Items.Include(x => x.Modifiers).Where(x => x.Id == id && !x.IsDeleted).FirstOrDefault();
         }
 
         public List<Item> GetItems()
         {
-            return dbContext.Items.Include(x => x.Modifiers).ToList();
+            return dbContext.Items.Where(x => !x.IsDeleted).Include(x => x.Modifiers.Where(z => !z.IsDeleted)).ToList();
         }
 
         public void UpdateItem(string id, string name, double price, string description, int quantity, string category, string image, string code, string qrCode, List<string> modifiersIds)
@@ -86,14 +87,23 @@ namespace PointOfSale.DataAccess
             {
                 throw new Exception("Item not found");
             }
-            dbContext.Items.Remove(item);
+            item.IsDeleted = true;
+            dbContext.Items.Update(item);
             dbContext.SaveChanges();
         }
 
         public void AssignDisassign(string itemId, string modifierId)
         {
-            var item = dbContext.Items.Include(x => x.Modifiers).Where(x => x.Id == itemId).First();
-            var modifier = dbContext.Modifiers.Where(x => x.Id == modifierId).First();
+            var item = dbContext.Items.Include(x => x.Modifiers.Where(z => !z.IsDeleted)).Where(x => x.Id == itemId && !x.IsDeleted).First();
+            if (item == null)
+            {
+                throw new Exception("Item not found");
+            }
+            var modifier = dbContext.Modifiers.Where(x => x.Id == modifierId && !x.IsDeleted).First();
+            if (modifier == null)
+            {
+                throw new Exception("Modifier not found");
+            }
             if (item.Modifiers.Contains(modifier))
             {
                 item.Modifiers.Remove(modifier);

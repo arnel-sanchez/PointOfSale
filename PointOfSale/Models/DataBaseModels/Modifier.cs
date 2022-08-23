@@ -22,5 +22,8 @@ namespace PointOfSale.Models.DataBaseModels
 
         [Required]
         public bool Add { get; set; }
+
+        [Required]
+        public bool IsDeleted { get; set; }
     }
 }
