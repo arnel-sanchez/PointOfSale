@@ -27,11 +27,11 @@ namespace PointOfSale.Controllers
             try
             {
                 var items = _itemDataAccess.GetItems();
-                return Ok(new Response<List<Item>> { Code = 200, Data = items, Message = "Items Getted Success" });
+                return Ok(items);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -42,11 +42,11 @@ namespace PointOfSale.Controllers
             try
             {
                 var item = _itemDataAccess.GetItems(id);
-                return Ok(new Response<Item> { Code = 200, Data = item, Message = "Item Getted Success" });
+                return Ok(item);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -64,11 +64,11 @@ namespace PointOfSale.Controllers
                     image = item.Image;
                 }
                 _itemDataAccess.AddItem(item.Name, item.Price, item.Description, item.Quantity, item.Category, image, item.Code,code, item.ModifiersId);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Added Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -92,11 +92,11 @@ namespace PointOfSale.Controllers
                     image = item.Image;
                 }
                 _itemDataAccess.UpdateItem(id, item.Name, item.Price, item.Description, item.Quantity, item.Category, image, item.Code, code, item.ModifiersId);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Updated Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -107,11 +107,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _itemDataAccess.AssignDisassign(itemId, modifierId);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Modifier Assigned/Disasigned Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -128,11 +128,11 @@ namespace PointOfSale.Controllers
                     _fileHandler.DeleteFile(item.Image);
                 }
                 _itemDataAccess.DeleteItem(id);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Item Deleted Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
     }

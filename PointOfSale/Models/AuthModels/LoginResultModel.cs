@@ -14,9 +14,6 @@ namespace PointOfSale.Models.AuthModels
         [JsonPropertyName("role")]
         public string Role { get; set; }
 
-        [JsonPropertyName("originalUserName")]
-        public string OriginalUserName { get; set; }
-
         [JsonPropertyName("accessToken")]
         public string AccessToken { get; set; }
 

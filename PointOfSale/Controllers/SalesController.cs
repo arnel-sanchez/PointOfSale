@@ -22,12 +22,12 @@ namespace PointOfSale.Controllers
         {
             try
             {
-                var item = _salesDataAccess.GetSales(data.DateTime, data.SellerId);
-                return Ok(new Response<List<Sale>> { Code = 200, Data = item, Message = "Sale Getted Success" });
+                var sales = _salesDataAccess.GetSales(data.DateTime, data.SellerId);
+                return Ok(sales);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -42,11 +42,11 @@ namespace PointOfSale.Controllers
                     items.Add((item.ItemId, item.ModifiersId));
                 }
                 _salesDataAccess.AddSale(sale.SellerID, items);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Sale Added Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -61,11 +61,11 @@ namespace PointOfSale.Controllers
                     items.Add((item.ItemId, item.ModifiersId));
                 }
                 _salesDataAccess.AddSale(sale.SellerID, items);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Sale Updated Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -75,11 +75,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _salesDataAccess.DeleteSale(userId, id);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Sale Deleted Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -89,11 +89,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _salesDataAccess.DeleteSales(userId);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Sales Deleted Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
     }

@@ -43,7 +43,7 @@ namespace PointOfSale.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -385,11 +385,11 @@ namespace PointOfSale.Controllers
             try
             {
                 var users = _userDataAccess.GetSellers();
-                return Ok(new Response<List<UserDTO>> { Code = 200, Data = users, Message = "Users Getted Success" });
+                return Ok(users);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
     }

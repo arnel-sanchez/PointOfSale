@@ -25,11 +25,11 @@ namespace PointOfSale.Controllers
             try
             {
                 var modifiers = _modifierService.GetModifiers();
-                return Ok(new Response<List<Modifier>> { Code = 200, Data = modifiers, Message = "Modifiers Getted Success" });
+                return Ok(modifiers);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -39,12 +39,12 @@ namespace PointOfSale.Controllers
         {
             try
             {
-                var modifiers = _modifierService.GetModifiers(id);
-                return Ok(new Response<Modifier> { Code = 200, Data = modifiers, Message = "Modifier Getted Success" });
+                var modifier = _modifierService.GetModifiers(id);
+                return Ok(modifier);
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -55,11 +55,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _modifierService.AddModifiers(modifier.Name, modifier.Description, modifier.Price, modifier.Add);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Modifier Added Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -70,11 +70,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _modifierService.UpdateModifiers(id, modifier.Name, modifier.Description, modifier.Price, modifier.Add);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Modifier Updated Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -85,11 +85,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _modifierService.DeleteModifiers(id);
-                return Ok(new Response<string> { Code = 200, Data = "", Message = "Modifier Deleted Success" });
+                return Ok();
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
     }

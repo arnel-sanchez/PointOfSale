@@ -22,11 +22,11 @@ namespace PointOfSale.Controllers
             try
             {
                 var file = _fileHandler.DownloadFile(url).Result;
-                return Ok(new Response<MemoryStream> { Data = file, Code = 200, Message = "File Downloaded Success" });
+                return Ok(file);
             }
             catch (Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -37,11 +37,11 @@ namespace PointOfSale.Controllers
             {
                 var file = Request.Form.Files[0];
                 var fileUrl = _fileHandler.UploadFile(file);
-                return Ok(new Response<string> { Data = fileUrl, Code = 200, Message = "File Uploaded Success" });
+                return Ok(fileUrl);
             }
             catch (Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -51,11 +51,11 @@ namespace PointOfSale.Controllers
             try
             {
                 _fileHandler.DeleteFile(url);
-                return Ok(new Response<string> { Data = "", Code = 200, Message = "File Deleted Success" });
+                return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new Response<string> { Code = 400, Message = ex.Message, Data = "" });
+                return BadRequest(ex.Message);
             }
         }
     }
