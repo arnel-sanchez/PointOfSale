@@ -1,18 +1,67 @@
 ﻿@page "/"
 
-<h2 class="pb-2">Blazor Components</h2>
-<p class="pb-2 mw-1100">
-    Our Blazor UI components will help you create intuitive and highly-refined user experiences for both Blazor Server (ASP.NET Core) and Blazor WebAssembly hosting models.
-</p>
-<div class="pb-2 mw-1100">
-    <img class="fit-width" src="images/banner.png" />
+@using PointOfSaleClient.Models
+
+<div class="row" style="margin-top: 10%;">
+    <div class="col-sm-1 col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-1">
+    </div>
+    <div class="col-sm-10 col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-10">
+        <div class="card cw-480">
+            <EditForm Model="@Data"
+                      OnValidSubmit="@HandleValidSubmit"
+                      OnInvalidSubmit="@HandleInvalidSubmit"
+                      Context="EditFormContext">
+                <DataAnnotationsValidator />
+                <div class="card-header text-center py-3">
+                    <h4>Welcome to Point Of Sale</h4>
+                    <p class="tm-8 mb-0 fw-normal fs-825">
+                        Log in the system
+                    </p>
+                </div>
+                <div class="card-body">
+                    <DxFormLayout>
+                        <DxFormLayoutItem ColSpanMd="12">
+                            <Template>
+                                <DxTextBox @bind-Text="@Data.username"
+                                           NullText="Username"
+                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                                <div class="text-danger">
+                                    <ValidationMessage For="@(() => Data.username)" />
+                                </div>
+                            </Template>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="12">
+                            <Template>
+                                <DxTextBox @bind-Text="@Data.password"
+                                           NullText="Password"
+                                           Password="true"
+                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"/>
+                                <div class="text-danger">
+                                    <ValidationMessage For="@(() => Data.password)" />
+                                </div>
+                            </Template>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="12">
+                            <Template>
+                                <DxButton CssClass="w-100"
+                                          Text="Login"
+                                          RenderStyle="ButtonRenderStyle.Primary"
+                                          SubmitFormOnClick="true"/>
+                            </Template>
+                        </DxFormLayoutItem>
+                    </DxFormLayout>
+                </div>
+            </EditForm>
+        </div>   
+    </div>
+    <div class="col-sm-1 col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-1">
+    </div>
 </div>
 
-<h2 class="mb-4 mt-4">Helpful Resources</h2>
-
-<ul>
-    <li><a class="helplink" href="https://demos.devexpress.com/blazor/" target="_blank">Online Demos</a></li>
-    <li><a class="helplink" href="https://github.com/DevExpress/Blazor/blob/master/examples.md" target="_blank">Examples</a></li>
-    <li><a class="helplink" href="https://docs.devexpress.com/Blazor/400725/blazor-components" target="_blank">Documentation</a></li>
-    <li><a class="helplink" href="https://www.devexpress.com/support/training/blazor/" target="_blank">Free Blazor Training Course</a></li>
-</ul>
+@code {
+    Login Data { get; set; } = new Login();
+    void HandleValidSubmit() {
+    }
+    void HandleInvalidSubmit() {
+    }
+}

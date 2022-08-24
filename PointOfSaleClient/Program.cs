@@ -14,6 +14,7 @@ builder.Services.AddDevExpressBlazor();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IItemService, ItemService>();
 builder.Services.AddSingleton<IModifierService, ModifierService>();
+builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.Configure<RequestLocalizationOptions>(options => {
     options.DefaultRequestCulture = new RequestCulture("es");
@@ -37,6 +38,7 @@ if (!app.Environment.IsDevelopment())
 app.UseRequestLocalization();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseStaticFiles();
 
 app.UseRouting();
