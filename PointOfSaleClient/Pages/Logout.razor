@@ -1,0 +1,12 @@
+﻿@page "/logout"
+
+@using PointOfSaleClient.Services
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+
+@code {
+    protected override async void OnInitialized() {
+        await UserService.Logout();
+        NavigationManager.NavigateTo("./", true, true);
+    }
+}

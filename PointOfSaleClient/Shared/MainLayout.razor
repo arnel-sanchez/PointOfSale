@@ -1,6 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using PointOfSaleClient.Services
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject IJSRuntime jsr
+@inject IUserService UserService
 
 <DxLayoutBreakpoint MaxWidth="1200"
                     @bind-IsActive="@IsMobileLayout" />
@@ -84,8 +85,16 @@
         }
     }
 
-    protected override void OnInitialized() {
-        IsLogged = false;
+    public async void Reload(){
+        if (await UserService.UserIsLogged())
+            IsLogged = true;
+        else{
+            IsLogged = await UserService.RefreshToken();
+        }
+    }
+
+    protected override async void OnInitialized() {
+        Reload();
         NavigationManager.LocationChanged += OnLocationChanged;
     }
     async void OnLocationChanged(object? sender, LocationChangedEventArgs args) {

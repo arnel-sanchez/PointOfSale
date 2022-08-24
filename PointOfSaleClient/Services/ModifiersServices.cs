@@ -10,11 +10,11 @@ namespace PointOfSaleClient.Services
 
         public Task<Modifier> GetItem(string id);
 
-        public Task<string> Add(ModifierDTO modifier);
+        public Task Add(ModifierDTO modifier);
 
-        public Task<string> Update(string id, ModifierDTO modifier);
+        public Task Update(string id, ModifierDTO modifier);
 
-        public Task<string> Delete(string id);
+        public Task Delete(string id);
     }
 
     public class ModifierService : IModifierService
@@ -36,15 +36,13 @@ namespace PointOfSaleClient.Services
 
             var response = await client.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<List<Modifier>>>(responseString);
+            var res = JsonSerializer.Deserialize<List<Modifier>>(responseString);
             if (response.IsSuccessStatusCode)
             {
-                return res.data;
+                return res;
             }
             else
             {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
@@ -54,7 +52,7 @@ namespace PointOfSaleClient.Services
             throw new NotImplementedException();
         }
 
-        public async Task<string> Add(ModifierDTO modifier)
+        public async Task Add(ModifierDTO modifier)
         {
             var request = new HttpRequestMessage(HttpMethod.Post,
             "https://localhost:7134/api/modifiers/add");
@@ -69,21 +67,13 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
 
-        public async Task<string> Update(string id, ModifierDTO modifier)
+        public async Task Update(string id, ModifierDTO modifier)
         {
             var request = new HttpRequestMessage(HttpMethod.Put,
             "https://localhost:7134/api/modifiers/update/" + id);
@@ -98,22 +88,14 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
 
-        public async Task<string> Delete(string id)
+        public async Task Delete(string id)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete,
             "https://localhost:7134/api/modifiers/delete/" + id);
@@ -122,16 +104,8 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }

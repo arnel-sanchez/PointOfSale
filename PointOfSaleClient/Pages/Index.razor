@@ -1,6 +1,9 @@
 ﻿@page "/"
 
 @using PointOfSaleClient.Models
+@using PointOfSaleClient.Services
+@inject IUserService userService
+@inject NavigationManager navigationManager
 
 <div class="row" style="margin-top: 10%;">
     <div class="col-sm-1 col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-1">
@@ -43,6 +46,13 @@
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="12">
                             <Template>
+                                <DxCheckBox @bind-Checked="@Data.rememberMe" CssClass="mb-1">
+                                    Remember Me
+                                </DxCheckBox>
+                            </Template>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="12">
+                            <Template>
                                 <DxButton CssClass="w-100"
                                           Text="Login"
                                           RenderStyle="ButtonRenderStyle.Primary"
@@ -60,7 +70,15 @@
 
 @code {
     Login Data { get; set; } = new Login();
-    void HandleValidSubmit() {
+    async void HandleValidSubmit()
+    {
+        try{
+            await userService.Login(Data);
+            navigationManager.NavigateTo("./dashboard", true);
+        }
+        catch{
+            
+        }
     }
     void HandleInvalidSubmit() {
     }

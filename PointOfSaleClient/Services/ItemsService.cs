@@ -11,13 +11,13 @@ namespace PointOfSaleClient.Services
 
         public Task<Item> GetItem(string id);
 
-        public Task<string> Add(ItemDTO item);
+        public Task Add(ItemDTO item);
 
-        public Task<string> Update(string id, ItemDTO item);
+        public Task Update(string id, ItemDTO item);
 
-        public Task<string> Delete(string id);
+        public Task Delete(string id);
 
-        public Task<string> AssignDissasignModifier(string itemId, string modifierId);
+        public Task AssignDissasignModifier(string itemId, string modifierId);
     }
 
     public class ItemService : IItemService
@@ -29,7 +29,7 @@ namespace PointOfSaleClient.Services
             ClientFactory = _clientFactory;
         }
 
-        public async Task<string> Add(ItemDTO item)
+        public async Task Add(ItemDTO item)
         {
             var request = new HttpRequestMessage(HttpMethod.Post,
             "https://localhost:7134/api/items/add");
@@ -39,21 +39,13 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
 
-        public async Task<string> Delete(string id)
+        public async Task Delete(string id)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete,
             "https://localhost:7134/api/items/delete/" + id);
@@ -62,16 +54,9 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
-            if (response.IsSuccessStatusCode)
+
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
@@ -86,15 +71,13 @@ namespace PointOfSaleClient.Services
 
             var response = await client.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<List<Item>>>(responseString);
+            var res = JsonSerializer.Deserialize<List<Item>>(responseString);
             if (response.IsSuccessStatusCode)
             {
-                return res.data;
+                return res;
             }
             else
             {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
@@ -109,8 +92,8 @@ namespace PointOfSaleClient.Services
 
             var response = await client.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<Item>>(responseString);
-            res.data.modifiersId = new List<Modifier>();
+            var res = JsonSerializer.Deserialize<Item>(responseString);
+            res.modifiersId = new List<Modifier>();
             var conversion1 = responseString.Split("\"modifiers\":[");
             var conversion2 = conversion1[1].Split("]");
             var conversion3 = conversion2[0].Split("},{");
@@ -123,21 +106,19 @@ namespace PointOfSaleClient.Services
                     modifierToParse = "{" + modifierToParse;
                 if (modifier[modifier.Length - 1] != '}')
                     modifierToParse = modifierToParse + "}";
-                res.data.modifiersId.Add(JsonSerializer.Deserialize<Modifier>(modifierToParse));
+                res.modifiersId.Add(JsonSerializer.Deserialize<Modifier>(modifierToParse));
             }
             if (response.IsSuccessStatusCode)
             {
-                return res.data;
+                return res;
             }
             else
             {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
-                throw new Exception(res.message);
+                throw new Exception("Error");
             }
         }
 
-        public async Task<string> Update(string id, ItemDTO item)
+        public async Task Update(string id, ItemDTO item)
         {
             var request = new HttpRequestMessage(HttpMethod.Put,
             "https://localhost:7134/api/items/update/" + id );
@@ -147,22 +128,14 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if(!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }
 
-        public async Task<string> AssignDissasignModifier(string itemId, string modifierId)
+        public async Task AssignDissasignModifier(string itemId, string modifierId)
         {
             var request = new HttpRequestMessage(HttpMethod.Put,
             $"https://localhost:7134/api/items/assign/{itemId}/{modifierId}");
@@ -171,17 +144,9 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<Response<string>>(responseString);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return res.message;
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(res.message))
-                    throw new Exception(res.message);
                 throw new Exception("Error");
             }
         }

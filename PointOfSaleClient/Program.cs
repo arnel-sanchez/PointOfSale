@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-
 using Microsoft.AspNetCore.Localization;
+using Microsoft.JSInterop;
+using PointOfSaleClient.Models;
 using PointOfSaleClient.Services;
 using System.Globalization;
 
@@ -12,6 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddDevExpressBlazor();
 builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IItemService, ItemService>();
 builder.Services.AddSingleton<IModifierService, ModifierService>();
 builder.Services.AddSingleton<IUserService, UserService>();
