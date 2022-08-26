@@ -93,7 +93,6 @@ builder.Services.AddSingleton<IJwtAuthManager, JwtAuthManager>();
 builder.Services.AddSingleton<IFileHandler, FileHandler>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddTransient<IModifiersDataAccess, ModifiersDataAccess>();
-builder.Services.AddTransient<IUserDataAccess, UsersDataAccess>();
 builder.Services.AddTransient<IItemsDataAccess, ItemsDataAccess>();
 builder.Services.AddTransient<ISalesDataAccess, SalesDataAccess>();
 builder.Services.AddHostedService<JwtRefreshTokenCache>();

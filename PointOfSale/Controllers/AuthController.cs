@@ -27,18 +27,16 @@ namespace PointOfSale.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ILogger<AuthController> _logger;
-        private readonly IUserDataAccess _userDataAccess;
         private readonly IJwtAuthManager _jwtAuthManager;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
 
-        public AuthController(ILogger<AuthController> logger, IJwtAuthManager jwtAuthManager, UserManager<User> userManager, SignInManager<User> signInManager, IUserDataAccess userDataAccess)
+        public AuthController(ILogger<AuthController> logger, IJwtAuthManager jwtAuthManager, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _logger = logger;
             _jwtAuthManager = jwtAuthManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _userDataAccess = userDataAccess;
         }
 
         [AllowAnonymous]
@@ -67,8 +65,6 @@ namespace PointOfSale.Controllers
                 _logger.LogInformation($"User [{request.UserName}] logged in the system.");
                 return Ok(new LoginResult
                 {
-                    UserName = request.UserName,
-                    Role = role,
                     AccessToken = jwtResult.AccessToken,
                     RefreshToken = jwtResult.RefreshToken.TokenString
                 });
@@ -86,9 +82,13 @@ namespace PointOfSale.Controllers
         {
             try
             {
-                var user = new User { UserName = request.UserName,
+                var user = new User {
+                    UserName = request.UserName,
                     Email = request.Email,
-                    Role = request.Role
+                    Role = request.Role,
+                    LastName = request.LastName,
+                    Name = request.Name,
+                    PhoneNumber = request.PhoneNumber
                 };
                 var result = await _userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
@@ -147,8 +147,6 @@ namespace PointOfSale.Controllers
                     var jwtResult = _jwtAuthManager.GenerateTokens(user.UserName, claims, DateTime.Now);
                     return Ok(new LoginResult
                     {
-                        UserName = user.UserName,
-                        Role = user.Role,
                         AccessToken = jwtResult.AccessToken,
                         RefreshToken = jwtResult.RefreshToken.TokenString
                     });
@@ -216,8 +214,6 @@ namespace PointOfSale.Controllers
                 var jwtResult = _jwtAuthManager.GenerateTokens(user.UserName, claims, DateTime.Now);
                 return Ok(new LoginResult
                 {
-                    UserName = user.UserName,
-                    Role = user.Role,
                     AccessToken = jwtResult.AccessToken,
                     RefreshToken = jwtResult.RefreshToken.TokenString
                 });
@@ -328,7 +324,15 @@ namespace PointOfSale.Controllers
             {
                 var userName = User.Identity?.Name;
                 var user = await _userManager.FindByNameAsync(userName);
-                return Ok(user);
+                return Ok(new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    UserName = user.UserName,
+                    Role = user.Role,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                });
             }
             catch (Exception e)
             {
@@ -349,26 +353,21 @@ namespace PointOfSale.Controllers
         }
 
         [HttpPost("refresh-token")]
-        [Authorize]
         public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             try
             {
-                var userName = User.Identity.Name;
-                _logger.LogInformation($"User [{userName}] is trying to refresh JWT token.");
-
-                if (string.IsNullOrWhiteSpace(request.RefreshToken))
+                if (string.IsNullOrWhiteSpace(request.RefreshToken) || string.IsNullOrWhiteSpace(request.AccessToken))
                 {
-                    return Unauthorized();
+                    _logger.LogError("The refresh token or the access token is null or empty");
+                    return BadRequest("The refresh token or the access token is null or empty");
                 }
+
 
                 var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
                 var jwtResult = _jwtAuthManager.Refresh(request.RefreshToken, accessToken, DateTime.Now);
-                _logger.LogInformation($"User [{userName}] has refreshed JWT token.");
                 return Ok(new LoginResult
                 {
-                    UserName = userName,
-                    Role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty,
                     AccessToken = jwtResult.AccessToken,
                     RefreshToken = jwtResult.RefreshToken.TokenString
                 });
@@ -380,12 +379,77 @@ namespace PointOfSale.Controllers
         }
 
         [HttpGet("get-sellers")]
+        [Authorize(Roles = Roles.Admin)]
         public IActionResult GetSellers()
         {
             try
             {
-                var users = _userDataAccess.GetSellers();
-                return Ok(users);
+                return Ok(_userManager.Users.Where(x => x.Role == Roles.Seller));
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-administratives")]
+        [Authorize(Roles = Roles.Admin)]
+        public IActionResult GetAdministratives()
+        {
+            try
+            {
+                return Ok(_userManager.Users.Where(x => x.Role == Roles.Administrative));
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-all")]
+        [Authorize(Roles = Roles.Admin)]
+        public IActionResult GetAll()
+        {
+            try
+            {
+                return Ok(_userManager.Users);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> Update(string id, [FromBody] RegisterRequest user)
+        {
+            try
+            {
+                var user1 = await _userManager.FindByIdAsync(id);
+                user1.Name = user.Name;
+                user1.UserName = user.UserName;
+                user1.LastName = user.LastName;
+                user1.Email = user.Email;
+                user1.PhoneNumber = user.PhoneNumber;
+                user1.Role = user.Role;
+                await _userManager.UpdateAsync(user1);
+                return Ok();
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                await _userManager.DeleteAsync(await _userManager.FindByIdAsync(id));
+                return Ok();
             }
             catch (System.Exception ex)
             {

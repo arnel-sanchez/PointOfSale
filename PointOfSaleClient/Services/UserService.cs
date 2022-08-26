@@ -12,17 +12,23 @@ namespace PointOfSaleClient.Services
 
         public Task<bool> UserIsLogged();
 
-        public Task Register();
+        public Task Add(CreateRegisterUserDTO user);
+
+        public Task Update(string id, CreateRegisterUserDTO user);
 
         public Task Logout();
 
         public Task<bool> RefreshToken();
 
-        public Task<UserMetadata> GetUser();
+        public Task<User> GetUser();
 
         public Task ForgotPassword();
 
         public Task ResetPassword();
+
+        public Task<List<User>> GetUsers();
+
+        public Task Delete(string id);
     }
 
     public class UserService : IUserService
@@ -47,10 +53,10 @@ namespace PointOfSaleClient.Services
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<UserMetadata>(responseString);
             if (response.IsSuccessStatusCode)
             {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var res = JsonSerializer.Deserialize<UserMetadata>(responseString);
                 Cache.Set("user", res);
             }
             else
@@ -62,7 +68,7 @@ namespace PointOfSaleClient.Services
         public async Task<bool> UserIsLogged()
         {
             var userMetadata = (UserMetadata)Cache.Get("user");
-            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken) || string.IsNullOrEmpty(userMetadata.username) || string.IsNullOrEmpty(userMetadata.role))
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
                 return false;
             var request = new HttpRequestMessage(HttpMethod.Get,
             "https://localhost:7134/api/auth/get-user");
@@ -82,15 +88,10 @@ namespace PointOfSaleClient.Services
             }
         }
 
-        public Task Register()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task Logout()
         {
             var userMetadata = (UserMetadata)Cache.Get("user");
-            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken) || string.IsNullOrEmpty(userMetadata.username) || string.IsNullOrEmpty(userMetadata.role))
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
                 return;
             var request = new HttpRequestMessage(HttpMethod.Post,
             "https://localhost:7134/api/auth/logout");
@@ -109,25 +110,25 @@ namespace PointOfSaleClient.Services
         public async Task<bool> RefreshToken()
         {
             var userMetadata = (UserMetadata)Cache.Get("user");
-            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken) || string.IsNullOrEmpty(userMetadata.username) || string.IsNullOrEmpty(userMetadata.role))
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
                 return false;
             var refreshToken = new RefreshToken
             {
-                refreshToken = userMetadata.refreshToken
+                refreshToken = userMetadata.refreshToken,
+                accessToken = userMetadata.accessToken
             };
             var request = new HttpRequestMessage(HttpMethod.Post,
             "https://localhost:7134/api/auth/get-user");
             request.Headers.Add("Accept", "*/*");
-            request.Headers.Add("Authorization", "Bearer " + userMetadata.accessToken);
             request.Content = new StringContent(JsonSerializer.Serialize(refreshToken), Encoding.UTF8, "application/json");
 
             var client = ClientFactory.CreateClient();
 
             var response = await client.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<UserMetadata>(responseString);
             if (response.IsSuccessStatusCode)
             {
+                var responseString = await response.Content.ReadAsStringAsync();
+                var res = JsonSerializer.Deserialize<UserMetadata>(responseString);
                 Cache.Set("user", res);
                 return true;
             }
@@ -137,10 +138,34 @@ namespace PointOfSaleClient.Services
             }
         }
 
-        public Task<UserMetadata> GetUser()
+        public Task<User> GetUser()
         {
             throw new NotImplementedException();
         }
+
+        public async Task<List<User>> GetUsers()
+        {
+            var userMetadata = (UserMetadata)Cache.Get("user");
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
+                return new List<User>();
+            var request = new HttpRequestMessage(HttpMethod.Get,
+            "https://localhost:7134/api/auth/get-all");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("Authorization", "Bearer " + userMetadata.accessToken);
+            
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<User>>(responseString);
+            }
+            else
+            {
+                throw new Exception("Error");
+            }
+        } 
 
         public Task ForgotPassword()
         {
@@ -150,6 +175,66 @@ namespace PointOfSaleClient.Services
         public Task ResetPassword()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task Add(CreateRegisterUserDTO user)
+        {
+            var userMetadata = (UserMetadata)Cache.Get("user");
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
+                return;
+            var request = new HttpRequestMessage(HttpMethod.Post,
+            "https://localhost:7134/api/auth/register");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("Authorization", "Bearer " + userMetadata.accessToken);
+            request.Content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Error");
+            }
+        }
+        
+        public async Task Update(string id, CreateRegisterUserDTO user)
+        {
+            var userMetadata = (UserMetadata)Cache.Get("user");
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
+                return;
+            var request = new HttpRequestMessage(HttpMethod.Put,
+            $"https://localhost:7134/api/auth/update/{id}");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("Authorization", "Bearer " + userMetadata.accessToken);
+            var json = JsonSerializer.Serialize(user);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Error");
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            var userMetadata = (UserMetadata)Cache.Get("user");
+            if (userMetadata == null || string.IsNullOrEmpty(userMetadata.accessToken) || string.IsNullOrEmpty(userMetadata.refreshToken))
+                return;
+            var request = new HttpRequestMessage(HttpMethod.Delete,
+            $"https://localhost:7134/api/auth/delete/{id}");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("Authorization", "Bearer " + userMetadata.accessToken);
+
+            var client = ClientFactory.CreateClient();
+
+            var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Error");
+            }
         }
     }
 }

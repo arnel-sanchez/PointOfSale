@@ -35,5 +35,9 @@ namespace PointOfSale.Models.AuthModels
         [Required]
         [DataType(DataType.Text)]
         public string Role { get; set; }
+
+        [Required]
+        [DataType(DataType.PhoneNumber)]
+        public string PhoneNumber { get; set; }
     }
 }

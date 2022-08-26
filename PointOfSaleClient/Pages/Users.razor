@@ -4,10 +4,157 @@
 @using PointOfSaleClient.Services
 @using DevExpress.Blazor
 @inject NavigationManager navigationManager
-@inject IItemService ItemService
+@inject IUserService UserService
 
-<h3>Users</h3>
+<di class="container">
+    <div class="row">
+        <div class="col-5"></div>
+        <div class="col-2">
+            <h3>Users</h3>
+        </div>
+        <div class="col-5"></div>
+    </div>
+    <div class="row">
+        <DxGrid Data="@DataSource"
+            KeyFieldName="id"
+            PageSize="12"
+            ValidationEnabled="true"
+            AllowSelectRowByClick="true"
+            EditModelSaving="Grid_EditModelSaving"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            DataItemDeleting="Grid_DataItemDeleting"
+            PopupEditFormCssClass="pw-800"
+            EditMode="GridEditMode.PopupEditForm">
+            <Columns>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="id" Visible = "false" />
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="name" Caption="Name"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="lastName" Caption="Last Name"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="userName" Caption="User Name"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="email" Caption="Email"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="phoneNumber" Caption="Phone Number"/>
+                <DxGridDataColumn TextAlignment="GridTextAlignment.Center" FieldName="role" Caption="Role"/>
+                <DxGridCommandColumn TextAlignment="GridTextAlignment.Center" Width="15%" />
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var user = (CreateEditUser)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="ID:" Visible="false" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.id" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.name" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Last Name:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.lastName" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="User Name:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.userName" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Role:" ColSpanMd="6">
+                        <DxComboBox Data="@Roles" @bind-Value="@user.role" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Phone Number:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.phoneNumber" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Email:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.email" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Password:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.password" Password="true"/>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Confirm Password:" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@user.confirmPassword" Password="true"/>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+        </DxGrid>
+    </div>
+</di>
 
 @code {
+    List<CreateEditUser> DataSource { get; set; }
+    List<string> Roles { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        Roles = new List<string>();
+        Roles.Add("Admin");
+        Roles.Add("Administrative");
+        Roles.Add("Seller");
+        await UpdateDataAsync();
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e) {
+        if(e.IsNew) {
+            var user = (CreateEditUser)e.EditModel;
+            user.id = "";
+            user.email = "";
+            user.lastName = "";
+            user.name = "";
+            user.phoneNumber = "";
+            user.role = "";
+            user.userName = "";
+            user.confirmPassword = "";
+            user.password = "";
+        }
+    }
+
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e) {
+        var user = (CreateEditUser)e.EditModel;
+        if(e.IsNew) {
+            await UserService.Add(new CreateRegisterUserDTO
+            {
+                name = user.name,
+                email = user.email,
+                lastName = user.lastName,
+                userName = user.userName,
+                phoneNumber = user.phoneNumber,
+                role = user.role,
+                confirmPassword = user.confirmPassword,
+                password = user.password
+            });
+        }
+        else
+        {
+            await UserService.Update(user.id, new CreateRegisterUserDTO{
+                name = user.name,
+                email = user.email,
+                lastName = user.lastName,
+                userName = user.userName,
+                phoneNumber = user.phoneNumber,
+                role = user.role,
+                confirmPassword = user.confirmPassword,
+                password = user.password
+            });
+        }
+        await UpdateDataAsync();
+    }
+
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e) {
+        var user = (CreateEditUser)e.DataItem;
+        await UserService.Delete(user.id);
+        await UpdateDataAsync();
+    }
+
+    async Task UpdateDataAsync() {
+        var users = await UserService.GetUsers();
+        DataSource = new List<CreateEditUser>();
+        foreach (var user in users)
+        {
+            DataSource.Add(new CreateEditUser
+            {
+                    id = user.id,
+                    email = user.email,
+                    lastName = user.lastName,
+                    name = user.name,
+                    phoneNumber = user.phoneNumber,
+                    role = user.role,
+                    userName = user.userName,
+                    confirmPassword = "",
+                    password = ""
+            });
+        }
+    }
 }
